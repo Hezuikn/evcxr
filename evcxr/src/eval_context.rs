@@ -1622,7 +1622,7 @@ impl ContextState {
             } else if ast::Expr::can_cast(node.kind()) {
                 if statement_index == num_statements - 1 {
                     if self.config.display_final_expression {
-                        code_out = code_out.generated(
+                        code_out = code_out.other_user_code(
                             CodeBlock::new()
                                 .generated("::print_any::print_any(&(\n")
                                 .with_segment(segment)
