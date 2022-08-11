@@ -3,6 +3,8 @@ usage [general](/COMMON.md),
 
 [upstream todo](/TODO.md)
 
+[how it works](/evcxr/HOW_IT_WORKS.md)
+
 # Evcxr
 
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/google/evcxr/main?filepath=evcxr_jupyter%2Fsamples%2Fevcxr_jupyter_tour.ipynb)
