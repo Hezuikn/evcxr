@@ -179,25 +179,6 @@ static ERROR_FORMATS: &[ErrorFormat] = &[
     },
 ];
 
-const SEND_TEXT_PLAIN_DEF: &str = stringify!(
-    fn evcxr_send_text_plain(text: &str) {
-        use std::io::Write;
-        use std::io::{self};
-        fn try_send_text(text: &str) -> io::Result<()> {
-            let stdout = io::stdout();
-            let mut output = stdout.lock();
-            output.write_all(b"EVCXR_BEGIN_CONTENT text/plain\n")?;
-            output.write_all(text.as_bytes())?;
-            output.write_all(b"\nEVCXR_END_CONTENT\n")?;
-            Ok(())
-        }
-        if let Err(error) = try_send_text(text) {
-            eprintln!("Failed to send content to parent: {:?}", error);
-            std::process::exit(1);
-        }
-    }
-);
-
 const PANIC_NOTIFICATION: &str = "EVCXR_PANIC_NOTIFICATION";
 
 // Outputs from an EvalContext. This is a separate struct since users may want
@@ -1075,7 +1056,13 @@ impl ContextState {
         ContextState {
             items_by_name: HashMap::new(),
             unnamed_items: vec![],
-            external_deps: HashMap::new(),
+            external_deps: HashMap::from([(
+                "print_any".to_owned(),
+                ExternalCrate {
+                    config: r#"{ git = "https://github.com/Hezuikn/print_any" }"#.to_owned(),
+                    name: "print_any".to_owned(),
+                },
+            )]),
             extern_crate_stmts: HashMap::new(),
             variable_states: HashMap::new(),
             stored_variable_states: HashMap::new(),
@@ -1635,22 +1622,12 @@ impl ContextState {
             } else if ast::Expr::can_cast(node.kind()) {
                 if statement_index == num_statements - 1 {
                     if self.config.display_final_expression {
-                        code_out = code_out.code_with_fallback(
-                            // First we try calling .evcxr_display().
+                        code_out = code_out.generated(
                             CodeBlock::new()
-                                .generated("(")
-                                .with_segment(segment.clone())
-                                .generated(").evcxr_display();")
-                                .code_string(),
-                            // If that fails, we try debug format.
-                            CodeBlock::new()
-                                .generated(SEND_TEXT_PLAIN_DEF)
-                                .generated(&format!(
-                                    "evcxr_send_text_plain(&format!(\"{}\",&(\n",
-                                    self.config.output_format
-                                ))
+                                .generated("::print_any::print_any(&(\n")
                                 .with_segment(segment)
-                                .generated(")));"),
+                                .generated("));")
+                                .code_string(),
                         );
                     } else {
                         code_out = code_out
