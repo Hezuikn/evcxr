@@ -1,6 +1,7 @@
-usage https://github.com/Hezuikn/evcxr/blob/main/COMMON.md
+usage [general](/COMMON.md),
+[repl](/evcxr_repl/README.md)
 
-upstream todo https://github.com/Hezuikn/evcxr/blob/main/TODO.md
+[upstream todo](/TODO.md)
 
 # Evcxr
 
